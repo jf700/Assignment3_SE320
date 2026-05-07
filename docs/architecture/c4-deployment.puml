@@ -1,0 +1,46 @@
+@startuml c4-deployment
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Deployment Diagram - Digital Therapy Assistant
+
+Deployment_Node(client, "Client Machine", "Web Browser / Claude Desktop") {
+    Container(browser, "Web Browser", "Chrome, Firefox, Safari", "Accesses frontend on port 3000")
+    Container(claude, "Claude Desktop", "MCP Client", "Connects to MCP server via stdio")
+}
+
+Deployment_Node(aws, "AWS EC2", "t2.medium, Ubuntu 22.04, Elastic IP") {
+    Deployment_Node(docker, "Docker Compose", "Container Orchestration") {
+        Deployment_Node(frontendContainer, "Frontend Container", "Nginx Alpine") {
+            Container(nginx, "Nginx", "Port 3000", "Serves static React app, proxies API to backend")
+        }
+        Deployment_Node(backendContainer, "Backend Container", "JRE 22 Alpine") {
+            Container(springboot, "Spring Boot", "Port 8080", "REST API, JWT Auth, AI Integration, MCP Server")
+        }
+        Deployment_Node(storage, "Persistent Storage", "Docker Volumes") {
+            ContainerDb(h2vol, "H2 Database", "File Volume", "digitaltherapy_db.mv.db")
+            Container(vectorvol, "Vector Store", "File Volume", "vector-store.json")
+        }
+    }
+}
+
+Deployment_Node(github_infra, "GitHub Infrastructure") {
+    Container(ghactions, "GitHub Actions", "CI/CD", "Build, test, deploy pipelines")
+    ContainerDb(ghcr, "GitHub Container Registry", "Docker Registry", "Backend and frontend images")
+}
+
+Deployment_Node(anthropic, "Anthropic Cloud") {
+    Container(claudeapi, "Claude API", "LLM Service", "AI therapeutic response generation")
+}
+
+Rel(browser, nginx, "HTTPS", "Port 3000")
+Rel(nginx, springboot, "HTTP Proxy", "/auth/*, /sessions/*, /diary/*, /progress/*, /crisis/*")
+Rel(springboot, h2vol, "JDBC", "File I/O")
+Rel(springboot, vectorvol, "Read/Write", "File I/O")
+Rel(springboot, claudeapi, "HTTPS", "API calls")
+Rel(claude, springboot, "stdio", "MCP Protocol")
+Rel(ghactions, ghcr, "Push images", "Docker")
+Rel(ghactions, aws, "SSH Deploy", "Port 22")
+
+@enduml

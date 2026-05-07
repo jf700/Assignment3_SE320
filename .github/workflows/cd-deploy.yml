@@ -1,0 +1,60 @@
+name: CD Deploy
+
+on:
+  workflow_run:
+    workflows: ["CD Build"]
+    types: [completed]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/digital-therapy
+
+            # Pull latest code
+            git pull origin main
+
+            # Set environment variables
+            export ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+            export JWT_SECRET=${{ secrets.JWT_SECRET }}
+
+            # Rebuild and restart containers
+            docker compose down
+            docker compose up -d --build
+
+            # Wait for backend to be healthy
+            echo "Waiting for backend health check..."
+            for i in $(seq 1 30); do
+              if curl -sf http://localhost:8080/actuator/health; then
+                echo "Backend is healthy!"
+                break
+              fi
+              echo "Attempt $i/30..."
+              sleep 10
+            done
+
+      - name: Post-deployment verification
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "=== Container Status ==="
+            docker compose ps
+
+            echo "=== Health Check ==="
+            curl -sf http://localhost:8080/actuator/health && echo "Backend: OK" || echo "Backend: FAILED"
+            curl -sf http://localhost:3000/ > /dev/null && echo "Frontend: OK" || echo "Frontend: FAILED"

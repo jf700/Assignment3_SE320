@@ -10,7 +10,7 @@ The highest-level view showing the Digital Therapy Assistant system in relation 
 
 ### Level 2: Container (`c4-container.puml`)
 
-Zooms into the Digital Therapy Assistant system boundary to show the major containers: the CLI Application, Spring Boot Application, H2 Database, SimpleVector Store, and Knowledge Base. This diagram shows how these containers communicate and which technologies they use.
+Zooms into the Digital Therapy Assistant system boundary to show the major containers: the Frontend Application (Nginx/React on port 3000), Spring Boot Application (port 8080), MCP Server (stdio), H2 Database, SimpleVector Store, and Knowledge Base. Shows Nginx reverse proxy from frontend to backend, and MCP server integration for AI clients.
 
 ### Level 3: Component (`c4-component.puml`)
 
@@ -25,6 +25,17 @@ Contains three diagrams that zoom into the code level:
 - **Sequence Diagram (Chat Message Flow):** Traces a user chat message from the CLI through the SessionController, SessionService, AiService (with RAG context building and crisis detection), and back to the user with the AI-generated therapeutic response.
 
 - **Sequence Diagram (Diary Entry with AI Analysis):** Traces the creation of a thought diary entry, including the AI-powered cognitive distortion suggestion step and the subsequent entry persistence.
+
+### Deployment Diagram (`c4-deployment.puml`)
+
+Shows the production deployment architecture: AWS EC2 instance with Docker Compose orchestrating frontend (Nginx Alpine, port 3000) and backend (JRE 22 Alpine, port 8080) containers. Includes persistent storage volumes for H2 database and vector store, security group rules (ports 22, 3000, 8080), Elastic IP, and external service connections to Anthropic Claude API and GitHub infrastructure.
+
+### CI/CD Pipeline Diagram (`c4-pipeline.puml`)
+
+Shows the stage-gate CI/CD/CD pipeline implemented with GitHub Actions:
+- **CI (ci.yml):** Build → [Unit Tests (JaCoCo 80%) | Integration Tests | Code Quality (Checkstyle, SpotBugs) | Dependency Check (OWASP) | Security Scan (Gitleaks) | Frontend Lint (ESLint)] — all parallel after build
+- **CD Build (cd-build.yml):** Build Docker Images → Push to GHCR → Smoke Test
+- **CD Deploy (cd-deploy.yml):** SSH Deploy to EC2 → Docker Compose Up → Post-Deployment Verification
 
 ## Rendering the Diagrams
 

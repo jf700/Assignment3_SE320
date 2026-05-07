@@ -7,10 +7,12 @@ title Container Diagram - Digital Therapy Assistant
 
 Person(patient, "Patient", "Primary user seeking burnout recovery")
 Person(therapist, "Therapist", "Monitors patient progress")
+Person(aiUser, "AI Client User", "Uses Claude Desktop/Code via MCP")
 
 System_Boundary(dta, "Digital Therapy Assistant") {
-    Container(cli, "CLI Application", "Java 21", "Command-line interface for user interaction with menu-driven CBT workflows")
-    Container(api, "Spring Boot Application", "Java 21, Spring Boot 4.0", "Provides REST API, business logic, security, and AI integration")
+    Container(frontend, "Frontend Application", "Next.js, React 19, Nginx", "Single-page application served via Nginx on port 3000, proxies API requests to backend")
+    Container(api, "Spring Boot Application", "Java 21, Spring Boot 4.0", "Provides REST API, business logic, security, and AI integration on port 8080")
+    Container(mcp, "MCP Server", "Spring AI MCP, stdio", "Exposes therapy tools, resources, and prompts for AI clients via Model Context Protocol")
     ContainerDb(h2db, "H2 Database", "H2 (File-based)", "Stores users, sessions, diary entries, chat messages, and cognitive distortions")
     Container(vectorstore, "SimpleVector Store", "Java, In-Memory", "Vector storage for RAG similarity search using cosine similarity")
     Container(kb, "Knowledge Base", "JSON Files", "CBT reference materials: distortions, techniques, crisis protocols")
@@ -18,11 +20,12 @@ System_Boundary(dta, "Digital Therapy Assistant") {
 
 System_Ext(llm, "LLM Provider", "Anthropic Claude API")
 
-Rel(patient, cli, "Interacts via", "Terminal/Console")
-Rel(patient, api, "Makes API calls to", "HTTPS/JSON")
-Rel(therapist, api, "Monitors progress via", "HTTPS/JSON")
+Rel(patient, frontend, "Browses web application", "HTTPS / Port 3000")
+Rel(therapist, api, "Monitors progress via", "HTTPS/JSON / Port 8080")
+Rel(aiUser, mcp, "Connects via", "stdio / MCP Protocol")
 
-Rel(cli, api, "Calls services via", "Spring DI")
+Rel(frontend, api, "Proxies API requests via Nginx", "HTTP / Port 8080")
+Rel(mcp, api, "Delegates to service layer", "Spring DI")
 Rel(api, h2db, "Reads/writes data", "JPA/JDBC")
 Rel(api, vectorstore, "Stores and queries embeddings", "Java API")
 Rel(api, kb, "Loads CBT reference content", "File I/O")

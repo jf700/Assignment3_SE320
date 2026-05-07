@@ -5,6 +5,10 @@ import { useApp } from "@/lib/app-context"
 import { PhoneFrame } from "@/components/phone-frame"
 import { WebLayout } from "@/components/web-layout"
 
+/* ── Auth Flow Imports ── */
+import { LoginScreen, WebLoginScreen } from "@/components/flows/auth-login"
+import { RegisterScreen, WebRegisterScreen } from "@/components/flows/auth-register"
+
 /* ── Mobile Flow Imports ── */
 import {
   WelcomeScreen,
@@ -96,6 +100,8 @@ import {
 } from "@/components/web/web-crisis-progress"
 
 const mobileScreenMap: Record<string, React.ComponentType> = {
+  login: LoginScreen,
+  register: RegisterScreen,
   welcome: WelcomeScreen,
   "user-type": UserTypeScreen,
   privacy: PrivacyScreen,
@@ -133,6 +139,8 @@ const mobileScreenMap: Record<string, React.ComponentType> = {
 }
 
 const webScreenMap: Record<string, React.ComponentType> = {
+  login: WebLoginScreen,
+  register: WebRegisterScreen,
   welcome: WebWelcomeScreen,
   "user-type": WebUserTypeScreen,
   privacy: WebPrivacyScreen,
@@ -169,11 +177,16 @@ const webScreenMap: Record<string, React.ComponentType> = {
   "progress-achievements": WebProgressAchievementsScreen,
 }
 
+const authScreens = new Set(["login", "register", "welcome", "user-type", "privacy", "assessment", "personalization", "onboarding-complete"])
+
 export function AppScreen() {
   const { screen, viewMode } = useApp()
 
   if (viewMode === "mobile") {
-    const ScreenComponent = mobileScreenMap[screen] || WelcomeScreen
+    const ScreenComponent = mobileScreenMap[screen] || LoginScreen
+    if (authScreens.has(screen)) {
+      return <ScreenComponent />
+    }
     return (
       <PhoneFrame>
         <ScreenComponent />
@@ -182,7 +195,10 @@ export function AppScreen() {
   }
 
   // Web mode
-  const ScreenComponent = webScreenMap[screen] || WebWelcomeScreen
+  const ScreenComponent = webScreenMap[screen] || WebLoginScreen
+  if (authScreens.has(screen)) {
+    return <ScreenComponent />
+  }
   return (
     <WebLayout>
       <ScreenComponent />

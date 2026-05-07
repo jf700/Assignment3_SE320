@@ -31,3 +31,20 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Secrets & keys ###
+*.pem
+.env
+
+### Data ###
+data/
+*.mv.db
+*.trace.db
+
+### Frontend build ###
+mindbridge/node_modules/
+mindbridge/.next/
+mindbridge/out/
+
+### Logs ###
+*.log

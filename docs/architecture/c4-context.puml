@@ -8,19 +8,27 @@ title System Context Diagram - Digital Therapy Assistant
 Person(patient, "Patient", "Primary user seeking burnout recovery through CBT-based therapy")
 Person(therapist, "Therapist", "Mental health professional monitoring patient progress")
 Person(admin, "System Administrator", "Manages and maintains the platform")
+Person(aiUser, "AI Client User", "Uses Claude Desktop or Claude Code to interact via MCP")
 
 System(dta, "Digital Therapy Assistant", "AI-guided Cognitive Behavioral Therapy platform for workplace burnout recovery")
 
-System_Ext(llm, "LLM Provider", "AI language model service (Anthropic Claude / OpenAI / Gemini)")
+System_Ext(llm, "LLM Provider", "AI language model service (Anthropic Claude)")
 System_Ext(email, "Email Service", "Sends notifications and alerts to users")
 System_Ext(ehr, "Healthcare EHR Systems", "Electronic Health Record systems for FHIR data export")
+System_Ext(github, "GitHub", "Source code repository, CI/CD pipeline automation")
+System_Ext(ghcr, "GitHub Container Registry", "Docker image storage and distribution")
+System_Ext(aws, "AWS EC2", "Cloud deployment target for production hosting")
 
-Rel(patient, dta, "Uses for CBT sessions, thought diary, progress tracking", "CLI / REST API")
+Rel(patient, dta, "Uses for CBT sessions, thought diary, progress tracking", "Web Browser / Port 3000")
 Rel(therapist, dta, "Monitors patient progress and reviews session data", "REST API")
 Rel(admin, dta, "Manages platform configuration and user accounts", "REST API")
+Rel(aiUser, dta, "Interacts with therapy tools, resources, and prompts", "MCP / stdio")
 
 Rel(dta, llm, "Sends prompts, receives AI-generated therapeutic responses", "HTTPS/JSON")
 Rel(dta, email, "Sends notification emails", "SMTP")
 Rel(dta, ehr, "Exports patient progress data", "FHIR/REST")
+
+Rel(github, ghcr, "Pushes Docker images", "CI/CD")
+Rel(github, aws, "Deploys via SSH", "GitHub Actions")
 
 @enduml

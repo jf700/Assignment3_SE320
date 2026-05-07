@@ -1,0 +1,67 @@
+@startuml c4-pipeline
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title CI/CD/CD Pipeline Diagram - Digital Therapy Assistant
+
+rectangle "CI Pipeline (ci.yml)" as ci #LightBlue {
+    rectangle "Build" as build #SkyBlue
+    rectangle "Unit Tests\n(JaCoCo 80%)" as unit #LightGreen
+    rectangle "Integration\nTests" as integ #LightGreen
+    rectangle "Code Quality\n(Checkstyle\nSpotBugs)" as quality #LightGreen
+    rectangle "Dependency\nCheck (OWASP)" as dep #LightGreen
+    rectangle "Security Scan\n(Gitleaks)" as sec #LightGreen
+    rectangle "Frontend Lint\n(ESLint)" as lint #LightGreen
+}
+
+rectangle "CD Build Pipeline (cd-build.yml)" as cdbuild #LightYellow {
+    rectangle "Build Docker\nImages" as dockerbuild #Gold
+    rectangle "Push to\nGHCR" as push #Gold
+    rectangle "Smoke Test" as smoke #Gold
+}
+
+rectangle "CD Deploy Pipeline (cd-deploy.yml)" as cddeploy #LightCoral {
+    rectangle "SSH Deploy\nto EC2" as deploy #Salmon
+    rectangle "Docker Compose\nUp" as compose #Salmon
+    rectangle "Post-Deploy\nVerification" as verify #Salmon
+}
+
+note right of ci
+  Triggered on:
+  push/PR to main, develop
+end note
+
+note right of cdbuild
+  Triggered on:
+  push to main
+end note
+
+note right of cddeploy
+  Triggered on:
+  CD Build success
+  or manual dispatch
+end note
+
+build -down-> unit
+build -down-> integ
+build -down-> quality
+build -down-> dep
+build -down-> sec
+
+unit -[hidden]right-> integ
+integ -[hidden]right-> quality
+quality -[hidden]right-> dep
+dep -[hidden]right-> sec
+
+ci -right-> cdbuild : "All gates pass\n(main branch)"
+
+dockerbuild -down-> push
+push -down-> smoke
+
+cdbuild -right-> cddeploy : "Build succeeds"
+
+deploy -down-> compose
+compose -down-> verify
+
+@enduml

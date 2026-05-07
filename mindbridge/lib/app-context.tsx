@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useCallback } from "react"
 
 export type Screen =
+  | "login"
+  | "register"
   | "welcome"
   | "user-type"
   | "privacy"
@@ -86,7 +88,7 @@ const AppContext = createContext<AppContextType | null>(null)
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AppState>({
-    screen: "welcome",
+    screen: "login",
     viewMode: "web",
     userName: "",
     userType: null,
