@@ -8,6 +8,7 @@ COPY src src
 RUN mvn clean package -DskipTests -B
 
 FROM eclipse-temurin:22-jre-jammy
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 WORKDIR /app
 COPY --from=build /app/target/digitaltherapy-0.0.1-SNAPSHOT.jar app.jar
