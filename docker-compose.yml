@@ -10,7 +10,7 @@ services:
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - JWT_SECRET=${JWT_SECRET:-your-256-bit-secret-key-for-digital-therapy-app-replace-in-production}
-      - SPRING_DATASOURCE_URL=jdbc:h2:file:/app/data/digitaltherapy_db;AUTO_SERVER=TRUE
+      - SPRING_DATASOURCE_URL=jdbc:h2:file:/app/data/digitaltherapy_db
     volumes:
       - app-data:/app/data
     healthcheck:
