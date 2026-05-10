@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 import { useApp, type Screen } from "@/lib/app-context"
+import { logout } from "@/lib/api/auth"
 import {
   Brain,
   BookOpen,
@@ -195,7 +196,7 @@ export function WebLayout({ children }: { children: React.ReactNode }) {
         <div className="border-t border-border px-3 py-3">
           <button
             className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-            onClick={() => setScreen("welcome")}
+            onClick={() => { logout().finally(() => setScreen("login")) }}
           >
             <LogOut className="h-4 w-4" />
             <span>Sign Out</span>

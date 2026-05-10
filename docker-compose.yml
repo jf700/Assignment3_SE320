@@ -11,6 +11,9 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - JWT_SECRET=${JWT_SECRET:-your-256-bit-secret-key-for-digital-therapy-app-replace-in-production}
       - SPRING_DATASOURCE_URL=jdbc:h2:file:/app/data/digitaltherapy_db
+    volumes:
+      - db-data:/app/data
+      - vector-data:/app/data/vectors
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
@@ -36,6 +39,10 @@ services:
       retries: 3
     networks:
       - therapy-net
+
+volumes:
+  db-data:
+  vector-data:
 
 networks:
   therapy-net:
