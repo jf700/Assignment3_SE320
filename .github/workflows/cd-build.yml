@@ -2,7 +2,7 @@ name: CD Build
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
 
 env:
   REGISTRY: ghcr.io
