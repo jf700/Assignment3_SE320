@@ -6,8 +6,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE: ${{ github.repository }}/backend
-  FRONTEND_IMAGE: ${{ github.repository }}/frontend
+  BACKEND_IMAGE: ${{ github.repository_owner }}/assignment3_se320/backend
+  FRONTEND_IMAGE: ${{ github.repository_owner }}/assignment3_se320/frontend
 
 jobs:
   build-and-push:
