@@ -24,7 +24,7 @@ jobs:
             cd ~/digital-therapy
 
             # Pull latest code
-            git pull origin main
+            git pull origin master
 
             # Set environment variables
             export ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
